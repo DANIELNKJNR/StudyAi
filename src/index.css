@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+/* Keep YOUR existing Tailwind lines right below this (v4: @import "tailwindcss"; v3: @tailwind base/components/utilities;) */
+
+:root{
+  --bg:#eef0ea; --ink:#0e1410; --lime:#b4f02a; --leaf:#4a9d00;
+  --forest:#0b4a1f; --teal:#0f5d6e; --card:#1b1d1b; --coral:#ff8a5b;
+}
+html{font-family:'Outfit',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);margin:0}
+:focus-visible{outline:3px solid var(--forest);outline-offset:2px}
+.rp-panel :focus-visible{outline-color:var(--lime)}
+
+/* Sliders */
+.slider{-webkit-appearance:none;appearance:none;height:6px;border-radius:999px;cursor:pointer;
+  background:linear-gradient(to right,var(--forest) var(--fill,0%),rgba(11,74,31,.18) var(--fill,0%))}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;
+  background:#fff;border:4px solid var(--forest);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:4px solid var(--forest)}
+
+/* Container-aware result body: stacks in the narrow sidebar, goes side-by-side in a wide sheet */
+.rp{container-type:inline-size}
+.rp-body{display:flex;flex-direction:column;align-items:center;text-align:center;gap:1rem}
+@container (min-width:28rem){
+  .rp-body{flex-direction:row;text-align:left;gap:1.75rem}
+  .rp-body .rp-actions{justify-content:flex-start}
+}
+
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.pop{animation:pop .45s cubic-bezier(.2,.9,.3,1.2) both}
