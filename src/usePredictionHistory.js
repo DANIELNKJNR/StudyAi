@@ -164,6 +164,7 @@ export default function usePredictionHistory() {
               prediction.id
             )
           )
+                          )
         );
     } catch (err) {
       console.error("Clearing history failed:", err);
