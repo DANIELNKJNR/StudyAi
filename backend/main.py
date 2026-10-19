@@ -46,24 +46,4 @@ def predict(student: StudentData):
 
     return {
         "predicted_grade": round(float(prediction), 2)
-    }from fastapi import FastAPI
-from pydantic import BaseModel, Field
-
-app = FastAPI()
-
-
-class StudentData(BaseModel):
-    hours: float = Field(ge=0, le=24)
-    attendance: float = Field(ge=0, le=100)
-    prevScore: float = Field(ge=0, le=100)
-    assignments: int = Field(ge=0)
-
-@app.post("/predict")
-def predict(student: StudentData):
-    return {
-        "hours_received": student.hours,
-        "attendance_received": student.attendance,
-        "status": "Data received successfully"
     }
-
-
