@@ -3,34 +3,75 @@ import { PASS_AT } from "./mockPredict";
 
 export default function HistoryList({ items, loading, error, onClear }) {
   return (
-    <section id="history" aria-labelledby="hist-h" className="scroll-mt-6 rounded-[28px] bg-white p-5 sm:p-7">
-      <div className="flex items-center justify-between gap-3">
-        <h2 id="hist-h" className="text-xl font-semibold">Prediction history</h2>
-        {items.length > 0 && <button onClick={onClear} className="rounded-full px-3 py-1.5 text-sm text-black/60 hover:bg-black/5">Clear</button>}
+    <section
+      id="history"
+      className="rounded-3xl border border-black/10 bg-white/70 p-5 sm:p-6"
+    >
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-semibold">Prediction history</h2>
+          <p className="mt-1 text-sm text-black/55">
+            Your previous student grade predictions.
+          </p>
+        </div>
+
+        {items.length > 0 && (
+          <button
+            onClick={onClear}
+            className="rounded-full border border-black/15 px-4 py-2 text-sm transition hover:bg-black/5"
+          >
+            Clear
+          </button>
+        )}
       </div>
+
       {loading ? (
-        <div className="mt-5 space-y-3"><Skeleton className="h-16" /><Skeleton className="h-16" /></div>
+        <Skeleton />
       ) : error ? (
-        <ErrorState title="Couldn't load your history" body={error} />
+        <ErrorState message={error} />
       ) : items.length === 0 ? (
-        <EmptyState icon="fa-clock-rotate-left" title="No predictions yet" body="Each prediction you make is saved here so you can track your progress." />
+        <EmptyState
+          title="No predictions yet"
+          description="Your predictions will appear here after you submit the form."
+        />
       ) : (
-        <ul className="mt-5 space-y-3">
+        <ul className="space-y-3">
           {items.map((h) => {
-            const pass = h.probability >= PASS_AT, d = new Date(h.createdAt);
+            const grade = Number(h.predictedGrade);
+            const pass = grade >= PASS_AT;
+            const date = new Date(h.createdAt);
+
             return (
-              <li key={h.id} className="flex items-center gap-4 rounded-3xl bg-[var(--bg)] p-4">
-                <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-full text-sm font-semibold tabular-nums ${pass ? "bg-[var(--lime)] text-[var(--forest)]" : "bg-[var(--coral)]/30 text-[#8a2a08]"}`}>{h.probability}%</span>
+              <li
+                key={h.id}
+                className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-4"
+              >
+                <span
+                  className={`shrink-0 rounded-xl px-3 py-2 text-sm font-bold ${
+                    pass
+                      ? "bg-[var(--lime)] text-[var(--forest)]"
+                      : "bg-[var(--coral)]/15 text-[#8a2a08]"
+                  }`}
+                >
+                  {grade.toFixed(2)}/20
+                </span>
+
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">{h.label}</p>
-                  <p className="truncate text-xs text-black/55">
-                    {h.inputs.hours} hrs/week, {h.inputs.attendance}% attendance, {h.inputs.prevScore}% last test, {h.inputs.assignments} assignments
+
+                  <p className="mt-1 text-sm text-black/55">
+                    Study level: {h.inputs.studytime} · Absences:{" "}
+                    {h.inputs.absences}
+                  </p>
+
+                  <p className="text-sm text-black/55">
+                    G1: {h.inputs.G1}/20 · G2: {h.inputs.G2}/20
+                  </p>
+
+                  <p className="mt-1 text-xs text-black/40">
+                    {date.toLocaleString()}
                   </p>
                 </div>
-                <time dateTime={d.toISOString()} className="shrink-0 text-right text-xs text-black/50">
-                  {d.toLocaleDateString(undefined, { month: "short", day: "numeric" })}<br />
-                  {d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
-                </time>
               </li>
             );
           })}

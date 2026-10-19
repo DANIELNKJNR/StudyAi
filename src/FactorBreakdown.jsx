@@ -1,32 +1,67 @@
 import { EmptyState } from "./StateViews";
 
-const BAR = { strong: "var(--leaf)", ok: "#9ddc00", weak: "var(--coral)" };
-const CHIP = { strong: "bg-[var(--lime)] text-[var(--forest)]", ok: "bg-[#e3f5a8] text-[var(--forest)]", weak: "bg-[var(--coral)]/25 text-[#8a2a08]" };
-
 export default function FactorBreakdown({ result }) {
+  const factors = result?.factors ?? [];
+
   return (
-    <section aria-labelledby="factors-h" className="rounded-[28px] bg-white p-5 sm:p-7">
-      <h2 id="factors-h" className="text-xl font-semibold">What shaped this result</h2>
+    <section className="rounded-3xl border border-black/10 bg-white/70 p-5 sm:p-6">
+      <h2 className="text-xl font-semibold">Your submitted data</h2>
+
+      <p className="mt-1 text-sm text-black/55">
+        These are the inputs the ML model used to predict your grade.
+      </p>
+
       {!result ? (
-        <EmptyState icon="fa-chart-simple" title="Your breakdown shows up here"
-          body="After you predict, each number is compared with a typical passing target." />
+        <EmptyState
+          title="No prediction to analyze"
+          description="Submit the form to see the data used by the model."
+        />
       ) : (
         <ul className="mt-5 space-y-5">
-          {result.factors.map((f) => (
-            <li key={f.key}>
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="font-medium">{f.label}</span>
-                <span className="font-semibold tabular-nums">{f.value}{f.unit && ` ${f.unit}`}</span>
-              </div>
-              <div className="mt-2 h-2.5 overflow-hidden rounded-full" style={{ background: "rgba(0,0,0,.07)" }}>
-                <div className="h-full rounded-full transition-[width] duration-700" style={{ width: `${f.strength * 100}%`, background: BAR[f.tone] }} />
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-black/60">
-                <span className={`rounded-full px-2.5 py-0.5 font-medium ${CHIP[f.tone]}`}>{f.note}</span>
-                <span>Typical target: {f.target}{f.unit && ` ${f.unit}`}</span>
-              </div>
-            </li>
-          ))}
+          {factors.map((factor) => {
+            const isAbsences = factor.key === "absences";
+
+            // For absences, fewer days is generally better.
+            const strength = isAbsences
+              ? Math.max(0, 1 - factor.value / 100)
+              : factor.strength;
+
+            return (
+              <li key={factor.key}>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <span className="font-medium">{factor.label}</span>
+
+                  <span className="text-sm font-semibold">
+                    {factor.value}{" "}
+                    <span className="text-black/50">{factor.unit}</span>
+                  </span>
+                </div>
+
+                <div className="h-2 overflow-hidden rounded-full bg-black/10">
+                  <div
+                    className="h-full rounded-full bg-[var(--leaf)] transition-all"
+                    style={{
+                      width: `${Math.min(100, Math.max(0, strength * 100))}%`,
+                    }}
+                  />
+                </div>
+
+                <p className="mt-2 text-xs text-black/50">
+                  {factor.key === "studytime" &&
+                    "Study time level, from 1 to 4."}
+
+                  {factor.key === "absences" &&
+                    "Number of school days missed."}
+
+                  {factor.key === "G1" &&
+                    "Your first-period grade out of 20."}
+
+                  {factor.key === "G2" &&
+                    "Your second-period grade out of 20."}
+                </p>
+              </li>
+            );
+          })}
         </ul>
       )}
     </section>

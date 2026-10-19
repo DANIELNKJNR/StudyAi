@@ -1,13 +1,24 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import PredictionForm from "./PredictionForm";
 import ResultPanel from "./ResultPanel";
 import FactorBreakdown from "./FactorBreakdown";
 import './App.css'
 import HistoryList from "./HistoryList";
 import usePredictionHistory from "./usePredictionHistory";
-import { KEYS, estimate, isComplete, isFieldValid, predictStudent } from "./mockPredict";
+import {
+  KEYS,
+  isComplete,
+  isFieldValid,
+  predictStudent,
+} from "./mockPredict";
 
-const EMPTY = { hours: "", attendance: "", prevScore: "", assignments: "" };
+const EMPTY = {
+  studytime: "",
+  absences: "",
+  G1: "",
+  G2: "",
+};
+
 
 export default function App() {
   const [values, setValues] = useState(EMPTY);
@@ -16,9 +27,17 @@ export default function App() {
   const [error, setError] = useState("");
   const history = usePredictionHistory();
 
+const {
+  items,
+  loading: historyLoading,
+  error: historyError,
+  add,
+  clear,
+} = history;
+
   const complete = isComplete(values);
   const filled = KEYS.filter((k) => isFieldValid(k, values[k])).length;
-  const preview = useMemo(() => (complete ? estimate(values) : null), [values, complete]);
+  const preview = null;
 
   const handleChange = (k, v) => {
     setValues((p) => ({ ...p, [k]: v }));
@@ -26,14 +45,22 @@ export default function App() {
   };
 
   const submit = async () => {
-    setStatus("loading"); setError("");
-    try {
-      const r = await predictStudent(values);
-      setResult(r); history.add(r); setStatus("success");
-    } catch (e) {
-      setError(e.message); setStatus("error");
-    }
-  };
+  setStatus("loading");
+  setError("");
+
+  try {
+    const r = await predictStudent(values);
+
+    setResult(r);
+
+    await history.add(r);
+
+    setStatus("success");
+  } catch (e) {
+    setError(e.message);
+    setStatus("error");
+  }
+};
 
   const reset = () => { setValues(EMPTY); setStatus("idle"); setResult(null); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
